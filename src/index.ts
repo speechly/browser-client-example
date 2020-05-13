@@ -5,6 +5,7 @@ import {
   Word,
   Entity,
   Intent,
+  ClientOptions,
 } from "@speechly/browser-client";
 
 let clientState = ClientState.Disconnected;
@@ -59,19 +60,29 @@ window.onload = () => {
 function newClient(): Client {
   const appId = process.env.REACT_APP_APP_ID;
   if (appId === undefined) {
-    throw Error("Missing Speechly App ID!");
+    throw Error("Missing Speechly app ID!");
   }
 
   const language = process.env.REACT_APP_LANGUAGE;
   if (language === undefined) {
-    throw Error("Missing Speechly language!");
+    throw Error("Missing Speechly app language!");
   }
 
-  return new Client({
+  const opts: ClientOptions = {
     appId,
     language,
-    debug: true,
-  });
+    debug: process.env.REACT_APP_DEBUG === "true",
+  };
+
+  if (process.env.REACT_APP_LOGIN_URL !== undefined) {
+    opts.loginUrl = process.env.REACT_APP_LOGIN_URL;
+  }
+
+  if (process.env.REACT_APP_API_URL !== undefined) {
+    opts.apiUrl = process.env.REACT_APP_API_URL;
+  }
+
+  return new Client(opts);
 }
 
 function updateWords(words: Word[]) {
@@ -152,7 +163,26 @@ function updateStatus(status: string): void {
 }
 
 function bindStartStop(client: Client) {
-  const initDiv = document.getElementById("initialize") as HTMLElement;
+  const startRecording = async (event: MouseEvent | TouchEvent) => {
+    event.preventDefault();
+
+    try {
+      const contextId = await client.startContext();
+      resetState(contextId);
+    } catch (err) {
+      console.error("Could not start recording", err);
+    }
+  };
+
+  const stopRecording = async (event: MouseEvent | TouchEvent) => {
+    event.preventDefault();
+
+    try {
+      await client.stopContext();
+    } catch (err) {
+      console.error("Could not stop recording", err);
+    }
+  };
 
   const recordDiv = document.getElementById("record") as HTMLElement;
   recordDiv.addEventListener("mousedown", startRecording);
@@ -160,6 +190,7 @@ function bindStartStop(client: Client) {
   recordDiv.addEventListener("mouseup", stopRecording);
   recordDiv.addEventListener("touchend", stopRecording);
 
+  const initDiv = document.getElementById("initialize") as HTMLElement;
   client.onStateChange((state) => {
     clientState = state;
 
@@ -178,63 +209,31 @@ function bindStartStop(client: Client) {
     const statusDiv = document.getElementById("status") as HTMLElement;
     statusDiv.innerHTML = stateToString(state);
   });
-
-  function startRecording(event: MouseEvent | TouchEvent) {
-    event.preventDefault();
-
-    client.startContext((err, contextId) => {
-      if (err) {
-        console.error("Could not start recording", err);
-        return;
-      }
-
-      resetState(contextId as string);
-    });
-  }
-
-  function stopRecording(event: MouseEvent | TouchEvent) {
-    event.preventDefault();
-
-    client.stopContext((err) => {
-      if (err) {
-        console.error("Could not stop recording", err);
-        return;
-      }
-    });
-  }
 }
 
 function bindInitialize(client: Client) {
-  const initDiv = document.getElementById("initialize") as HTMLElement;
-  initDiv.addEventListener("mousedown", initialize);
-  initDiv.addEventListener("touchstart", initialize);
-
-  function initialize(event: MouseEvent | TouchEvent) {
+  const initialize = async (event: MouseEvent | TouchEvent) => {
     event.preventDefault();
     const button = event.target as HTMLElement;
 
-    if (clientState === ClientState.Disconnected) {
-      client.initialize((err?: Error) => {
-        if (err !== undefined) {
-          console.error("Error initializing Speechly client:", err);
-          return;
-        }
-
+    try {
+      if (clientState === ClientState.Disconnected) {
+        await client.initialize();
         button.innerHTML = "Disconnect";
-      });
-    }
-
-    if (clientState === ClientState.Connected) {
-      client.close((err?: Error) => {
-        if (err !== undefined) {
-          console.error("Error initializing Speechly client:", err);
-          return;
-        }
-
+      } else if (clientState === ClientState.Connected) {
+        await client.close();
         button.innerHTML = "Connect";
-      });
+      }
+    } catch (err) {
+      console.error("Error initializing Speechly client:", err);
     }
-  }
+
+    return;
+  };
+
+  const initDiv = document.getElementById("initialize") as HTMLElement;
+  initDiv.addEventListener("mousedown", initialize);
+  initDiv.addEventListener("touchstart", initialize);
 }
 
 function resetState(contextId: string) {
