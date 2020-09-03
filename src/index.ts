@@ -6,6 +6,7 @@ import {
   Entity,
   Intent,
   ClientOptions,
+  Segment,
 } from "@speechly/browser-client";
 
 let clientState = ClientState.Disconnected;
@@ -21,7 +22,7 @@ window.onload = () => {
   }
 
   // High-level API, that you can use to react to segment changes.
-  client.onSegmentChange((segment) => {
+  client.onSegmentChange((segment: Segment) => {
     updateWords(segment.words);
     updateEntities(segment.entities);
     updateIntent(segment.intent);
@@ -32,25 +33,35 @@ window.onload = () => {
   });
 
   // This is low-level API, that you can use to react to tentative events.
-  client.onTentativeIntent((cid, sid, intent) =>
-    logResponse("tentative_intent", cid, sid, { intent })
+  client.onTentativeTranscript(
+    (contextId: string, segmentId: number, words: Word[], transcript: string) =>
+      logResponse("tentative_transcript", contextId, segmentId, {
+        words,
+        transcript,
+      })
   );
-  client.onTentativeEntities((cid, sid, entities) =>
-    logResponse("tentative_entities", cid, sid, { entities })
+
+  client.onTentativeEntities(
+    (contextId: string, segmentId: number, entities: Entity[]) =>
+      logResponse("tentative_entities", contextId, segmentId, { entities })
   );
-  client.onTentativeTranscript((cid, sid, words, transcript) =>
-    logResponse("tentative_transcript", cid, sid, { words, transcript })
+
+  client.onTentativeIntent(
+    (contextId: string, segmentId: number, intent: Intent) =>
+      logResponse("tentative_intent", contextId, segmentId, { intent })
   );
 
   // This is low-level API, that you can use to react to final events.
-  client.onIntent((cid, sid, intent) =>
-    logResponse("intent", cid, sid, { intent })
+  client.onTranscript((contextId: string, segmentId: number, word: Word) =>
+    logResponse("transcript", contextId, segmentId, { word })
   );
-  client.onEntity((cid, sid, entity) =>
-    logResponse("entity", cid, sid, { entity })
+
+  client.onEntity((contextId: string, segmentId: number, entity: Entity) =>
+    logResponse("entity", contextId, segmentId, { entity })
   );
-  client.onTranscript((cid, sid, word) =>
-    logResponse("transcript", cid, sid, { word })
+
+  client.onIntent((contextId: string, segmentId: number, intent: Intent) =>
+    logResponse("intent", contextId, segmentId, { intent })
   );
 
   bindStartStop(client);
