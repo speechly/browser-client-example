@@ -4,16 +4,16 @@
     "main.js.map": "/browser-client-example/static/js/main.8db6e951.chunk.js.map",
     "runtime-main.js": "/browser-client-example/static/js/runtime-main.96878375.js",
     "runtime-main.js.map": "/browser-client-example/static/js/runtime-main.96878375.js.map",
-    "static/js/2.99f230c3.chunk.js": "/browser-client-example/static/js/2.99f230c3.chunk.js",
-    "static/js/2.99f230c3.chunk.js.map": "/browser-client-example/static/js/2.99f230c3.chunk.js.map",
+    "static/js/2.1a28a87d.chunk.js": "/browser-client-example/static/js/2.1a28a87d.chunk.js",
+    "static/js/2.1a28a87d.chunk.js.map": "/browser-client-example/static/js/2.1a28a87d.chunk.js.map",
     "index.html": "/browser-client-example/index.html",
-    "precache-manifest.1f3a706e599999da9f2088bb849f183d.js": "/browser-client-example/precache-manifest.1f3a706e599999da9f2088bb849f183d.js",
+    "precache-manifest.cfc65b38882d9761f11c8b1c4b94f779.js": "/browser-client-example/precache-manifest.cfc65b38882d9761f11c8b1c4b94f779.js",
     "service-worker.js": "/browser-client-example/service-worker.js",
-    "static/js/2.99f230c3.chunk.js.LICENSE.txt": "/browser-client-example/static/js/2.99f230c3.chunk.js.LICENSE.txt"
+    "static/js/2.1a28a87d.chunk.js.LICENSE.txt": "/browser-client-example/static/js/2.1a28a87d.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.96878375.js",
-    "static/js/2.99f230c3.chunk.js",
+    "static/js/2.1a28a87d.chunk.js",
     "static/js/main.8db6e951.chunk.js"
   ]
 }
